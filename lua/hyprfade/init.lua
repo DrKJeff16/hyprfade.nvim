@@ -109,11 +109,7 @@ local function toggle()
 end
 
 local function reset()
-	if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
-		vim.notify("hyprfade: invalid opacity in opts", vim.log.levels.ERROR)
-		return
-	end
-	set_opacity(opts.opacity)
+	set_opacity(1)
 end
 
 function M.setup(user_opts)

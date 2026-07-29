@@ -80,7 +80,7 @@ will not activate.
   Command              Description~
   `:Hyprfade {value}`  Set opacity to a specific value (0.0–1.0)
   `:HyprfadeToggle`    Toggle between `1` (opaque) and `opts.opacity`
-  `:HyprfadeReset`     Reset to the configured `opacity` value
+   `:HyprfadeReset`     Reset opacity to `1` (fully opaque)
 
 ==============================================================================
 6. HOW OPACITY IS APPLIED                            *hyprfade-how*
