@@ -152,7 +152,7 @@ function M.setup(user_opts)
   vim.api.nvim_create_autocmd("VimLeavePre", {
     group = group,
     callback = function()
-      reset()
+      set_opacity(1)
     end,
   })
 end

@@ -57,8 +57,8 @@ require("hyprfade").setup({
 | `opacity`    | number | `0.85`                                        | Opacity value applied automatically |
 | `term_names` | table  | `{ "kitty", "alacritty", "foot", "wezterm" }` | Process names to recognise          |
 
-Opacity is always applied as soon as `setup()` runs, and always reset to
-`opts.opacity` on `VimLeavePre` — these aren't configurable. If `hyprctl` isn't
+Opacity is always applied as soon as `setup()` runs, and always reset to fully
+opaque (`1`) on `VimLeavePre` — these aren't configurable. If `hyprctl` isn't
 on `PATH` or the terminal pid can't be resolved, every entry point
 (`setup()`, `HyprFade`, `HyprFadeToggle`, `HyprFadeReset`) no-ops and warns
 via `vim.notify` rather than erroring, so it's safe to load the plugin
@@ -91,8 +91,10 @@ hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_inactive", value = <value>,
 Both `opacity` and `opacity_inactive` are set (not just `opacity`), because
 Hyprland resets opacity to `1.0` the moment the window loses focus if only
 the active-state prop is overridden. Each value requires its matching
-`*_override` flag set to `1`, or Hyprland ignores it. `reset()` restores
-`opts.opacity` (validated; falls back to `1` if invalid or missing).
+`*_override` flag set to `1`, or Hyprland ignores it. `HyprFadeReset`
+restores `opts.opacity` (validated; falls back to `1` if invalid or missing);
+`VimLeavePre` always sets opacity to `1` so the terminal is fully opaque
+when Neovim exits.
 
 Opacity is applied immediately when `setup()` runs, rather than waiting for
 a `VimEnter` autocmd. This matters for lazy-loaded installs: lazy.nvim's
