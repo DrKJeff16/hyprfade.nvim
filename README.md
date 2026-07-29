@@ -64,7 +64,7 @@ on `PATH` or the terminal pid can't be resolved, every entry point
 via `vim.notify` rather than erroring, so it's safe to load the plugin
 unconditionally even outside a Hyprland session (e.g. nvim over SSH, or on
 X11/another compositor). Invalid `opacity` opts values are notified at
-`WARN` level and then throw a Lua error with a descriptive message
+`WARN` level with a descriptive message and fall back to `1`
 
 ## Commands
 
@@ -93,7 +93,7 @@ Both `opacity` and `opacity_inactive` are set (not just `opacity`), because
 Hyprland resets opacity to `1.0` the moment the window loses focus if only
 the active-state prop is overridden. Each value requires its matching
 `*_override` flag set to `1`, or Hyprland ignores it. `HyprfadeReset`
-restores `opts.opacity` (validated; warns and throws error if invalid);
+restores `opts.opacity` (validated; warns and falls back to `1` if invalid);
 `VimLeavePre` always sets opacity to `1` so the terminal is fully opaque
 when Neovim exits
 

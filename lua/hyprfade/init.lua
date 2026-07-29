@@ -113,19 +113,18 @@ end
 local function reset()
   local opacity = opts.opacity
   if type(opacity) ~= "number" or opacity < 0 or opacity > 1 then
-    vim.notify("hyprfade: invalid opacity opts value", vim.log.levels.WARN)
-    error("hyprfade: opacity must be a number between 0 and 1, got " .. vim.inspect(opacity))
+    vim.notify("hyprfade: invalid opacity opts value, falling back to 1", vim.log.levels.WARN)
+    opacity = 1
   end
   set_opacity(opacity)
 end
 
 function M.setup(user_opts)
-  user_opts = user_opts or {}
-  if user_opts.opacity ~= nil and (type(user_opts.opacity) ~= "number" or user_opts.opacity < 0 or user_opts.opacity > 1) then
-    vim.notify("hyprfade: invalid opacity opts value", vim.log.levels.WARN)
-    error("hyprfade: opacity must be a number between 0 and 1, got " .. vim.inspect(user_opts.opacity))
+  opts = vim.tbl_deep_extend("keep", user_opts or {}, defaults)
+  if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
+    vim.notify("hyprfade: invalid opacity opts value, falling back to 1", vim.log.levels.WARN)
+    opts.opacity = 1
   end
-  opts = vim.tbl_deep_extend("keep", user_opts, defaults)
   current = nil
   terminal_pid = nil
 
