@@ -134,7 +134,7 @@ local function reset()
     set_prop("opacity_override", 0),
     set_prop("opacity_inactive_override", 0),
   }
-  vim.system({ "hyprctl", "eval", table.concat(statements, "; ") }, nil, function() end)
+  vim.fn.system({ "hyprctl", "eval", table.concat(statements, "; ") })
   current = nil
 end
 
