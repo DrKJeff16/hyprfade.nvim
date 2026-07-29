@@ -5,11 +5,18 @@ local defaults = {
   term_names = { "kitty", "alacritty", "foot", "wezterm" },
   set_on_enter = true,
   reset_on_leave = true,
+  notify_on_missing = true,
 }
 
 local opts = {}
 local current = nil
 local terminal_pid = nil
+
+local function warn(msg)
+  if opts.notify_on_missing ~= false then
+    vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
+  end
+end
 
 local function find_terminal_pid()
   if terminal_pid then
@@ -57,26 +64,27 @@ end
 
 local function set_opacity(value, lock)
   if vim.fn.executable("hyprctl") == 0 then
-    vim.notify("hyprfade: hyprctl not found on PATH", vim.log.levels.WARN)
+    warn("hyprctl not found on PATH")
     return
   end
 
   local pid = find_terminal_pid()
   if not pid then
-    vim.notify("hyprfade: could not resolve terminal PID", vim.log.levels.WARN)
+    warn("could not resolve terminal PID")
     return
   end
 
-  local args = {
-    "dispatch", "setprop",
-    ("pid:%d"):format(pid),
-    "alpha", tostring(value),
-  }
-  if lock ~= false then
-    table.insert(args, "lock")
-  end
+  local selector = ("pid:%d"):format(pid)
+  local lock_suffix = (lock ~= false) and " lock" or ""
 
-  vim.system({ "hyprctl", unpack(args) }, nil, function() end)
+  local cmds = {
+    ("dispatch setprop %s opacity_override 1"):format(selector),
+    ("dispatch setprop %s opacity %s%s"):format(selector, tostring(value), lock_suffix),
+    ("dispatch setprop %s opacity_inactive_override 1"):format(selector),
+    ("dispatch setprop %s opacity_inactive %s%s"):format(selector, tostring(value), lock_suffix),
+  }
+
+  vim.system({ "hyprctl", "--batch", table.concat(cmds, " ; ") }, nil, function() end)
   current = value
 end
 
@@ -90,21 +98,22 @@ end
 
 local function reset()
   if vim.fn.executable("hyprctl") == 0 then
-    vim.notify("hyprfade: hyprctl not found on PATH", vim.log.levels.WARN)
+    warn("hyprctl not found on PATH")
     return
   end
 
   local pid = find_terminal_pid()
   if not pid then
-    vim.notify("hyprfade: could not resolve terminal PID", vim.log.levels.WARN)
+    warn("could not resolve terminal PID")
     return
   end
 
-  vim.system({
-    "hyprctl", "dispatch", "setprop",
-    ("pid:%d"):format(pid),
-    "alpha", "1.0",
-  }, nil, function() end)
+  local selector = ("pid:%d"):format(pid)
+  local cmds = {
+    ("dispatch setprop %s opacity_override 0"):format(selector),
+    ("dispatch setprop %s opacity_inactive_override 0"):format(selector),
+  }
+  vim.system({ "hyprctl", "--batch", table.concat(cmds, " ; ") }, nil, function() end)
   current = nil
 end
 
@@ -130,9 +139,11 @@ function M.setup(user_opts)
     reset()
   end, {})
 
+  local group = vim.api.nvim_create_augroup("hyprfade", { clear = true })
+
   if opts.set_on_enter then
     vim.api.nvim_create_autocmd("VimEnter", {
-      group = vim.api.nvim_create_augroup("hyprfade", { clear = true }),
+      group = group,
       callback = function()
         set_opacity(opts.opacity)
       end,
@@ -141,7 +152,7 @@ function M.setup(user_opts)
 
   if opts.reset_on_leave then
     vim.api.nvim_create_autocmd("VimLeavePre", {
-      group = vim.api.nvim_create_augroup("hyprfade", { clear = true }),
+      group = group,
       callback = function()
         reset()
       end,
