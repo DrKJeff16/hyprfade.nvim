@@ -30,7 +30,8 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
 ```lua
 {
   "Senal-D-A-Gunaratna/hyprfade.nvim",
-  event = "VeryLazy",
+  lazy = false,
+  priority = 1000,
   opts = {
     opacity = 0.85,              -- normal editing opacity
     term_names = {               -- process names to recognise as terminals
@@ -63,13 +64,13 @@ require("hyprfade").setup({
 })
 ```
 
-| Option              | Type    | Default                                       | Description                                                             |
-|---------------------|---------|------------------------------------------------|---------------------------------------------------------------------------|
-| `opacity`           | number  | `0.85`                                          | Opacity value applied automatically                                     |
-| `term_names`        | table   | `{ "kitty", "alacritty", "foot", "wezterm" }`  | Process names to recognise                                              |
-| `set_on_enter`      | boolean | `true`                                          | Apply opacity as soon as `setup()` runs, if `hyprctl` and the terminal pid are available |
-| `reset_on_leave`    | boolean | `true`                                          | Reset on `VimLeavePre`, if available                                    |
-| `notify_on_missing` | boolean | `true`                                          | Whether to `vim.notify` a warning when `hyprctl` isn't on `PATH` or the terminal pid can't be resolved. Set to `false` to suppress these warnings. |
+| Option              | Type    | Default                                       | Description                                                                                                                                        |
+| ------------------- | ------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `opacity`           | number  | `0.85`                                        | Opacity value applied automatically                                                                                                                |
+| `term_names`        | table   | `{ "kitty", "alacritty", "foot", "wezterm" }` | Process names to recognise                                                                                                                         |
+| `set_on_enter`      | boolean | `true`                                        | Apply opacity as soon as `setup()` runs, if `hyprctl` and the terminal pid are available                                                           |
+| `reset_on_leave`    | boolean | `true`                                        | Reset on `VimLeavePre`, if available                                                                                                               |
+| `notify_on_missing` | boolean | `true`                                        | Whether to `vim.notify` a warning when `hyprctl` isn't on `PATH` or the terminal pid can't be resolved. Set to `false` to suppress these warnings. |
 
 **"If not available" behaviour:** every entry point (`set_on_enter`,
 `reset_on_leave`, `HyprFade`, `HyprFadeToggle`, `HyprFadeReset`) checks for
@@ -81,11 +82,11 @@ a Hyprland session (e.g. nvim over SSH, or on X11/another compositor); set
 
 ## Commands
 
-| Command             | Description                             |
-|---------------------|-----------------------------------------|
-| `HyprFade [value]`  | Set opacity to a specific value (0–1)   |
-| `HyprFadeToggle`    | Toggle between invisible (0) and normal |
-| `HyprFadeReset`     | Reset to fully opaque and unlocked      |
+| Command            | Description                             |
+| ------------------ | --------------------------------------- |
+| `HyprFade [value]` | Set opacity to a specific value (0–1)   |
+| `HyprFadeToggle`   | Toggle between invisible (0) and normal |
+| `HyprFadeReset`    | Reset to fully opaque and unlocked      |
 
 ## How opacity is actually applied
 
@@ -108,7 +109,7 @@ overriding the value afterwards; `reset()` clears both `*_override` flags
 `set_on_enter` applies opacity immediately when `setup()` runs, rather than
 waiting for the `VimEnter` autocmd. This matters for lazy-loaded installs:
 lazy.nvim's `VeryLazy` event (used in the install snippet above) fires
-*after* `VimEnter` has already completed for the session, so a `VimEnter`
+_after_ `VimEnter` has already completed for the session, so a `VimEnter`
 autocmd registered inside `setup()` would never fire.
 
 ## Known limitations
