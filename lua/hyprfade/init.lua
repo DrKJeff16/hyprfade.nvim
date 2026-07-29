@@ -111,31 +111,12 @@ local function toggle()
 end
 
 local function reset()
-  if vim.fn.executable("hyprctl") == 0 then
-    warn("hyprctl not found on PATH")
-    return
+  local opacity = opts.opacity
+  if type(opacity) ~= "number" or opacity < 0 or opacity > 1 then
+    warn("invalid opacity value, resetting to 1")
+    opacity = 1
   end
-
-  local pid = find_terminal_pid()
-  if not pid then
-    warn("could not resolve terminal PID")
-    return
-  end
-
-  local selector = ("pid:%d"):format(pid)
-  local function set_prop(prop, val)
-    return ('hl.dispatch(hl.dsp.window.set_prop({ prop = "%s", value = %s, window = "%s" }))')
-      :format(prop, tostring(val), selector)
-  end
-
-  local statements = {
-    set_prop("opacity_override", 0),
-    set_prop("opacity", 1),
-    set_prop("opacity_inactive_override", 0),
-    set_prop("opacity_inactive", 1),
-  }
-  vim.fn.system({ "hyprctl", "eval", table.concat(statements, "; ") })
-  current = nil
+  set_opacity(opacity)
 end
 
 function M.setup(user_opts)

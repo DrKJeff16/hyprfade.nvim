@@ -52,13 +52,13 @@ require("hyprfade").setup({
 })
 ```
 
-| Option       | Type   | Default                                        | Description                  |
-| ------------ | ------ | ----------------------------------------------- | ----------------------------- |
-| `opacity`    | number | `0.85`                                          | Opacity value applied automatically |
-| `term_names` | table  | `{ "kitty", "alacritty", "foot", "wezterm" }`  | Process names to recognise    |
+| Option       | Type   | Default                                       | Description                         |
+| ------------ | ------ | --------------------------------------------- | ----------------------------------- |
+| `opacity`    | number | `0.85`                                        | Opacity value applied automatically |
+| `term_names` | table  | `{ "kitty", "alacritty", "foot", "wezterm" }` | Process names to recognise          |
 
 Opacity is always applied as soon as `setup()` runs, and always reset to
-fully opaque on `VimLeavePre` — these aren't configurable. If `hyprctl` isn't
+`opts.opacity` on `VimLeavePre` — these aren't configurable. If `hyprctl` isn't
 on `PATH` or the terminal pid can't be resolved, every entry point
 (`setup()`, `HyprFade`, `HyprFadeToggle`, `HyprFadeReset`) no-ops and warns
 via `vim.notify` rather than erroring, so it's safe to load the plugin
@@ -69,9 +69,9 @@ X11/another compositor).
 
 | Command            | Description                             |
 | ------------------ | --------------------------------------- |
-| `HyprFade [value]` | Set opacity to a specific value (0–1)   |
+| `HyprFade [value]` | Set opacity to a specific value (1-0)   |
 | `HyprFadeToggle`   | Toggle between invisible (0) and normal |
-| `HyprFadeReset`    | Reset to fully opaque and unlocked      |
+| `HyprFadeReset`    | Reset to configured `opacity`           |
 
 ## How opacity is actually applied
 
@@ -91,9 +91,8 @@ hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_inactive", value = <value>,
 Both `opacity` and `opacity_inactive` are set (not just `opacity`), because
 Hyprland resets opacity to `1.0` the moment the window loses focus if only
 the active-state prop is overridden. Each value requires its matching
-`*_override` flag set to `1`, or Hyprland ignores it. `reset()` clears both
-`*_override` flags back to `0` so window rules/defaults take back over once
-Neovim exits.
+`*_override` flag set to `1`, or Hyprland ignores it. `reset()` restores
+`opts.opacity` (validated; falls back to `1` if invalid or missing).
 
 Opacity is applied immediately when `setup()` runs, rather than waiting for
 a `VimEnter` autocmd. This matters for lazy-loaded installs: lazy.nvim's
