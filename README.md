@@ -71,7 +71,7 @@ at `ERROR` level and stops — the plugin won't activate.
 | Command            | Description                             |
 | ------------------ | --------------------------------------- |
 | `Hyprfade [value]` | Set opacity to a specific value (1-0)   |
-| `HyprfadeToggle`   | Toggle between invisible (0) and normal |
+| `HyprfadeToggle`   | Toggle between `1` (fully opaque) and opts `opacity` value |
 | `HyprfadeReset`    | Reset opacity to `1` (fully opaque)    |
 
 ## How opacity is actually applied
