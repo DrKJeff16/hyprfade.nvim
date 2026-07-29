@@ -42,7 +42,7 @@ With lazy.nvim: >
     priority = 1000,
     opts = {
       opacity = 0.7,
-      term_names = { "kitty", "alacritty", "foot", "wezterm" },
+      term_names = { "ghostty", "kitty", "alacritty", "foot", "wezterm" },
     },
     keys = {
       { "<leader>uo", "<cmd>HyprfadeToggle<cr>", desc = "Toggle window opacity" },
@@ -57,7 +57,7 @@ An `opts` table **must** be passed to |hyprfade-setup()|. There are no built-in
 defaults: >
   require("hyprfade").setup({
     opacity = 0.7,
-    term_names = { "kitty", "alacritty", "foot", "wezterm" },
+    term_names = { "ghostty", "kitty", "alacritty", "foot", "wezterm" },
   })
 <
 

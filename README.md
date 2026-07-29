@@ -30,7 +30,7 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely
   opts = {
     opacity = 0.7,              -- normal editing opacity
     term_names = {               -- process names to recognise as terminals
-      "kitty", "alacritty", "foot", "wezterm",
+      "ghostty", "kitty", "alacritty", "foot", "wezterm",
     },
   },
   keys = {
@@ -47,7 +47,7 @@ An `opts` table **must** be passed to `setup()`. There are no built-in defaults.
 require("hyprfade").setup({
   opacity = 0.7,              -- normal editing opacity (required, 0.0–1.0)
   term_names = {                -- process names to recognise as terminals (required)
-    "kitty", "alacritty", "foot", "wezterm",
+    "ghostty", "kitty", "alacritty", "foot", "wezterm",
   },
 })
 ```
