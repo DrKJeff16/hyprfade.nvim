@@ -26,7 +26,13 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
   "Senal-D-A-Gunaratna/hyprfade.nvim",
   event = "VeryLazy",
   opts = {
-    opacity = 0.85,
+    opacity = 0.85,              -- normal editing opacity
+    term_names = {               -- process names to recognise as terminals
+      "kitty", "alacritty", "foot", "wezterm",
+    },
+    set_on_enter = true,         -- apply opacity on VimEnter, if available
+    reset_on_leave = true,       -- reset to fully opaque on VimLeavePre, if available
+    notify_on_missing = true,    -- warn via vim.notify when hyprctl/pid isn't available
   },
   keys = {
     { "<leader>uo", "<cmd>HyprFadeToggle<cr>", desc = "Toggle window opacity" },
