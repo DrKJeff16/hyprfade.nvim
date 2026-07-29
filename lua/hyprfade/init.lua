@@ -56,6 +56,11 @@ local function find_terminal_pid()
 end
 
 local function set_opacity(value, lock)
+  if vim.fn.executable("hyprctl") == 0 then
+    vim.notify("hyprfade: hyprctl not found on PATH", vim.log.levels.WARN)
+    return
+  end
+
   local pid = find_terminal_pid()
   if not pid then
     vim.notify("hyprfade: could not resolve terminal PID", vim.log.levels.WARN)
@@ -84,8 +89,14 @@ local function toggle()
 end
 
 local function reset()
+  if vim.fn.executable("hyprctl") == 0 then
+    vim.notify("hyprfade: hyprctl not found on PATH", vim.log.levels.WARN)
+    return
+  end
+
   local pid = find_terminal_pid()
   if not pid then
+    vim.notify("hyprfade: could not resolve terminal PID", vim.log.levels.WARN)
     return
   end
 
