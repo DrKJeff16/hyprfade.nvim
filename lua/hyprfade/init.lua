@@ -62,7 +62,23 @@ local function find_terminal_pid()
   return nil
 end
 
-local function set_opacity(value, lock)
+-- Hyprland 0.55 (May 2026) replaced the classic `hyprctl dispatch <name>
+-- <args...>` calling convention with a Lua expression API: `hyprctl
+-- dispatch` now wraps its argument as `hl.dispatch(<your text>)` and runs
+-- it through the Lua VM, so old space-separated args like
+-- `dispatch setprop pid:X opacity 0.5` are rejected outright with a Lua
+-- syntax error. This affects every dispatcher, not just setprop.
+-- Ref: https://github.com/hyprwm/Hyprland/discussions/14255
+--
+-- The confirmed working form (from the Hyprland forum and the Window
+-- Rules wiki page's own set_prop examples) is a typed table:
+--   hl.dsp.window.set_prop({ prop = "...", value = ..., window = "..." })
+--
+-- `hyprctl eval '<lua>'` runs one or more semicolon-separated Lua
+-- statements in a single round trip, so we chain all the set_prop calls
+-- needed (override flag + value, for both active and inactive) into one
+-- eval instead of several separate hyprctl invocations.
+local function set_opacity(value)
   if vim.fn.executable("hyprctl") == 0 then
     warn("hyprctl not found on PATH")
     return
@@ -75,16 +91,19 @@ local function set_opacity(value, lock)
   end
 
   local selector = ("pid:%d"):format(pid)
-  local lock_suffix = (lock ~= false) and " lock" or ""
+  local function set_prop(prop, val)
+    return ('hl.dispatch(hl.dsp.window.set_prop({ prop = "%s", value = %s, window = "%s" }))')
+      :format(prop, tostring(val), selector)
+  end
 
-  local cmds = {
-    ("dispatch setprop %s opacity_override 1"):format(selector),
-    ("dispatch setprop %s opacity %s%s"):format(selector, tostring(value), lock_suffix),
-    ("dispatch setprop %s opacity_inactive_override 1"):format(selector),
-    ("dispatch setprop %s opacity_inactive %s%s"):format(selector, tostring(value), lock_suffix),
+  local statements = {
+    set_prop("opacity_override", 1),
+    set_prop("opacity", value),
+    set_prop("opacity_inactive_override", 1),
+    set_prop("opacity_inactive", value),
   }
 
-  vim.system({ "hyprctl", "--batch", table.concat(cmds, " ; ") }, nil, function() end)
+  vim.system({ "hyprctl", "eval", table.concat(statements, "; ") }, nil, function() end)
   current = value
 end
 
@@ -109,11 +128,18 @@ local function reset()
   end
 
   local selector = ("pid:%d"):format(pid)
-  local cmds = {
-    ("dispatch setprop %s opacity_override 0"):format(selector),
-    ("dispatch setprop %s opacity_inactive_override 0"):format(selector),
+  local function set_prop(prop, val)
+    return ('hl.dispatch(hl.dsp.window.set_prop({ prop = "%s", value = %s, window = "%s" }))')
+      :format(prop, tostring(val), selector)
+  end
+
+  -- Unset the override flags so window rules / defaults take back over
+  -- once nvim exits, rather than leaving the window pinned.
+  local statements = {
+    set_prop("opacity_override", 0),
+    set_prop("opacity_inactive_override", 0),
   }
-  vim.system({ "hyprctl", "--batch", table.concat(cmds, " ; ") }, nil, function() end)
+  vim.system({ "hyprctl", "eval", table.concat(statements, "; ") }, nil, function() end)
   current = nil
 end
 
