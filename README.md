@@ -1,13 +1,13 @@
 # hyprfade.nvim
 
 Seamlessly fade the terminal window hosting Neovim on Hyprland by setting its
-window opacity via `hyprctl dispatch setprop pid:<pid> opacity`.
+window opacity via `hyprctl dispatch setprop pid:<pid> opacity`
 
 ## Why
 
 Hyprland window rules based on `class` or `title` can miss the terminal window
 when Neovim is launched from a file manager like yazi, because the window's
-class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
+class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely
 
 ## Requirements
 
@@ -64,7 +64,7 @@ on `PATH` or the terminal pid can't be resolved, every entry point
 via `vim.notify` rather than erroring, so it's safe to load the plugin
 unconditionally even outside a Hyprland session (e.g. nvim over SSH, or on
 X11/another compositor). Invalid `opacity` opts values are notified as
-an error and reset to `1`.
+an error and reset to `1`
 
 ## Commands
 
@@ -95,17 +95,17 @@ the active-state prop is overridden. Each value requires its matching
 `*_override` flag set to `1`, or Hyprland ignores it. `HyprfadeReset`
 restores `opts.opacity` (validated; notifies error and falls back to `1` if invalid);
 `VimLeavePre` always sets opacity to `1` so the terminal is fully opaque
-when Neovim exits.
+when Neovim exits
 
 Opacity is applied immediately when `setup()` runs, rather than waiting for
 a `VimEnter` autocmd. This matters for lazy-loaded installs: lazy.nvim's
 `VeryLazy` event (used in the install snippet above) fires _after_
 `VimEnter` has already completed for the session, so a `VimEnter` autocmd
-registered inside `setup()` would never fire.
+registered inside `setup()` would never fire
 
 ## Known limitations
 
 PID resolution walks the `/proc` tree upwards from Neovim's PID through the
 parent chain. If the ancestor chain reparents to PID 1 before hitting a known
 terminal name (e.g. some detached spawn paths), resolution fails and a
-warning is logged via `vim.notify`.
+warning is logged via `vim.notify`
