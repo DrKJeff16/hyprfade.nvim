@@ -3,6 +3,8 @@
 Seamlessly fade the terminal window hosting Neovim on Hyprland by setting its
 window opacity via `hyprctl dispatch setprop pid:<pid> opacity`
 
+<https://github.com/user-attachments/assets/22f5be4a-5403-4633-8f37-ba147c375cd3>
+
 ## Why
 
 Hyprland window rules based on `class` or `title` can miss the terminal window
