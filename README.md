@@ -21,7 +21,7 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
 
 ```lua
 {
-  "yourname/hyprfade.nvim",
+  "Senal-D-A-Gunaratna/hyprfade.nvim",
   event = "VeryLazy",
   opts = {
     opacity = 0.85,
