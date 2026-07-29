@@ -139,15 +139,17 @@ function M.setup(user_opts)
     reset()
   end, {})
 
+  -- NOTE: set_on_enter used to hook VimEnter. That breaks under lazy
+  -- loading (e.g. `event = "VeryLazy"`), because VeryLazy fires *after*
+  -- VimEnter has already completed for this session — by the time
+  -- setup() runs and registers the autocmd, VimEnter has already fired
+  -- and won't fire again, so opacity was never applied on startup.
+  -- setup() being called at all (eager or lazy) is itself the "the
+  -- plugin is now active" signal, so just apply immediately here.
   local group = vim.api.nvim_create_augroup("hyprfade", { clear = true })
 
   if opts.set_on_enter then
-    vim.api.nvim_create_autocmd("VimEnter", {
-      group = group,
-      callback = function()
-        set_opacity(opts.opacity)
-      end,
-    })
+    set_opacity(opts.opacity)
   end
 
   if opts.reset_on_leave then

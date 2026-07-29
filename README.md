@@ -30,7 +30,7 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
     term_names = {               -- process names to recognise as terminals
       "kitty", "alacritty", "foot", "wezterm",
     },
-    set_on_enter = true,         -- apply opacity on VimEnter, if available
+    set_on_enter = true,         -- apply opacity as soon as setup() runs, if available
     reset_on_leave = true,       -- reset to fully opaque on VimLeavePre, if available
     notify_on_missing = true,    -- warn via vim.notify when hyprctl/pid isn't available
   },
@@ -51,7 +51,7 @@ require("hyprfade").setup({
   term_names = {               -- process names to recognise as terminals
     "kitty", "alacritty", "foot", "wezterm",
   },
-  set_on_enter = true,         -- apply opacity on VimEnter, if available
+  set_on_enter = true,         -- apply opacity as soon as setup() runs, if available
   reset_on_leave = true,       -- reset to fully opaque on VimLeavePre, if available
   notify_on_missing = true,    -- warn via vim.notify when hyprctl/pid isn't available
 })
@@ -61,7 +61,7 @@ require("hyprfade").setup({
 |---------------------|---------|------------------------------------------------|---------------------------------------------------------------------------|
 | `opacity`           | number  | `0.85`                                          | Opacity value applied automatically                                     |
 | `term_names`        | table   | `{ "kitty", "alacritty", "foot", "wezterm" }`  | Process names to recognise                                              |
-| `set_on_enter`      | boolean | `true`                                          | Apply opacity on `VimEnter`, if `hyprctl` and the terminal pid are available |
+| `set_on_enter`      | boolean | `true`                                          | Apply opacity as soon as `setup()` runs, if `hyprctl` and the terminal pid are available |
 | `reset_on_leave`    | boolean | `true`                                          | Reset on `VimLeavePre`, if available                                    |
 | `notify_on_missing` | boolean | `true`                                          | Whether to `vim.notify` a warning when `hyprctl` isn't on `PATH` or the terminal pid can't be resolved. Set to `false` to fail silently (e.g. on a non-Hyprland machine) |
 
@@ -98,6 +98,12 @@ Hyprland resets opacity to `1.0` the moment the window loses focus if only
 the active-state prop is overridden. `lock` prevents a window rule from
 overriding the value afterwards; `reset()` clears both `*_override` flags
 (and unlocks) so rules/defaults take back over once Neovim exits.
+
+`set_on_enter` applies opacity immediately when `setup()` runs, rather than
+waiting for the `VimEnter` autocmd. This matters for lazy-loaded installs:
+lazy.nvim's `VeryLazy` event (used in the install snippet above) fires
+*after* `VimEnter` has already completed for the session, so a `VimEnter`
+autocmd registered inside `setup()` would never fire.
 
 ## Known limitations
 
