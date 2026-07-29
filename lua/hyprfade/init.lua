@@ -13,6 +13,17 @@ local function warn(msg)
   vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
 end
 
+local function warn_later(msg)
+  vim.schedule(function()
+    vim.api.nvim_create_autocmd("VimEnter", {
+      once = true,
+      callback = function()
+        vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
+      end,
+    })
+  end)
+end
+
 local function find_terminal_pid()
   if terminal_pid then
     return terminal_pid
@@ -113,9 +124,7 @@ end
 local function reset()
   local opacity = opts.opacity
   if type(opacity) ~= "number" or opacity < 0 or opacity > 1 then
-    vim.schedule(function()
-      vim.notify("hyprfade: invalid opacity opts value, falling back to 1", vim.log.levels.WARN)
-    end)
+    warn_later("invalid opacity opts value, falling back to 1")
     opacity = 1
   end
   set_opacity(opacity)
@@ -124,9 +133,7 @@ end
 function M.setup(user_opts)
   opts = vim.tbl_deep_extend("keep", user_opts or {}, defaults)
   if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
-    vim.schedule(function()
-      vim.notify("hyprfade: invalid opacity opts value, falling back to 1", vim.log.levels.WARN)
-    end)
+    warn_later("invalid opacity opts value, falling back to 1")
     opts.opacity = 1
   end
   current = nil
