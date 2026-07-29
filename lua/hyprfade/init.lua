@@ -128,11 +128,11 @@ local function reset()
       :format(prop, tostring(val), selector)
   end
 
-  -- Unset the override flags so window rules / defaults take back over
-  -- once nvim exits, rather than leaving the window pinned.
   local statements = {
     set_prop("opacity_override", 0),
+    set_prop("opacity", 1),
     set_prop("opacity_inactive_override", 0),
+    set_prop("opacity_inactive", 1),
   }
   vim.fn.system({ "hyprctl", "eval", table.concat(statements, "; ") })
   current = nil
