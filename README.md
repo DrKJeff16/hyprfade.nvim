@@ -33,7 +33,7 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
     },
   },
   keys = {
-    { "<leader>uo", "<cmd>HyprFadeToggle<cr>", desc = "Toggle window opacity" },
+    { "<leader>uo", "<cmd>HyprfadeToggle<cr>", desc = "Toggle window opacity" },
   },
 }
 ```
@@ -60,7 +60,7 @@ require("hyprfade").setup({
 Opacity is always applied as soon as `setup()` runs, and always reset to fully
 opaque (`1`) on `VimLeavePre` — these aren't configurable. If `hyprctl` isn't
 on `PATH` or the terminal pid can't be resolved, every entry point
-(`setup()`, `HyprFade`, `HyprFadeToggle`, `HyprFadeReset`) no-ops and warns
+(`setup()`, `Hyprfade`, `HyprfadeToggle`, `HyprfadeReset`) no-ops and warns
 via `vim.notify` rather than erroring, so it's safe to load the plugin
 unconditionally even outside a Hyprland session (e.g. nvim over SSH, or on
 X11/another compositor).
@@ -69,9 +69,9 @@ X11/another compositor).
 
 | Command            | Description                             |
 | ------------------ | --------------------------------------- |
-| `HyprFade [value]` | Set opacity to a specific value (1-0)   |
-| `HyprFadeToggle`   | Toggle between invisible (0) and normal |
-| `HyprFadeReset`    | Reset to configured `opacity`           |
+| `Hyprfade [value]` | Set opacity to a specific value (1-0)   |
+| `HyprfadeToggle`   | Toggle between invisible (0) and normal |
+| `HyprfadeReset`    | Reset to configured `opacity`           |
 
 ## How opacity is actually applied
 
@@ -91,7 +91,7 @@ hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_inactive", value = <value>,
 Both `opacity` and `opacity_inactive` are set (not just `opacity`), because
 Hyprland resets opacity to `1.0` the moment the window loses focus if only
 the active-state prop is overridden. Each value requires its matching
-`*_override` flag set to `1`, or Hyprland ignores it. `HyprFadeReset`
+`*_override` flag set to `1`, or Hyprland ignores it. `HyprfadeReset`
 restores `opts.opacity` (validated; falls back to `1` if invalid or missing);
 `VimLeavePre` always sets opacity to `1` so the terminal is fully opaque
 when Neovim exits.

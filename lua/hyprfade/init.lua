@@ -124,20 +124,20 @@ function M.setup(user_opts)
   current = nil
   terminal_pid = nil
 
-  vim.api.nvim_create_user_command("HyprFade", function(input)
+  vim.api.nvim_create_user_command("Hyprfade", function(input)
     local val = tonumber(input.args)
     if val then
       set_opacity(val)
     else
-      vim.notify("hyprfade: usage HyprFade <opacity>", vim.log.levels.ERROR)
+      vim.notify("hyprfade: usage Hyprfade <opacity>", vim.log.levels.ERROR)
     end
   end, { nargs = 1 })
 
-  vim.api.nvim_create_user_command("HyprFadeToggle", function()
+  vim.api.nvim_create_user_command("HyprfadeToggle", function()
     toggle()
   end, {})
 
-  vim.api.nvim_create_user_command("HyprFadeReset", function()
+  vim.api.nvim_create_user_command("HyprfadeReset", function()
     reset()
   end, {})
 
