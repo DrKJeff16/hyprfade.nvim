@@ -44,7 +44,6 @@ local M = {}
 function M.check()
   health.start("hyprfade")
 
-  health.info("Plugin version: 1 (hyprctl dispatch Lua API)")
   health.info(string.format("term_names (config): %s", vim.inspect(vim.g.hyprfade_opts and vim.g.hyprfade_opts.term_names or { "kitty", "alacritty", "foot", "wezterm" })))
 
   if vim.fn.executable("hyprctl") == 0 then
