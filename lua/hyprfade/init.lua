@@ -1,7 +1,7 @@
 local M = {}
 
 local defaults = {
-  opacity = 0.85,
+  opacity = 1,
   term_names = { "kitty", "alacritty", "foot", "wezterm" },
 }
 
@@ -113,7 +113,7 @@ end
 local function reset()
   local opacity = opts.opacity
   if type(opacity) ~= "number" or opacity < 0 or opacity > 1 then
-    warn("invalid opacity value, resetting to 1")
+    vim.notify("hyprfade: invalid opacity opts value", vim.log.levels.ERROR)
     opacity = 1
   end
   set_opacity(opacity)
@@ -121,6 +121,10 @@ end
 
 function M.setup(user_opts)
   opts = vim.tbl_deep_extend("keep", user_opts or {}, defaults)
+  if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
+    vim.notify("hyprfade: invalid opacity opts value", vim.log.levels.ERROR)
+    opts.opacity = 1
+  end
   current = nil
   terminal_pid = nil
 
