@@ -1,0 +1,21 @@
+# Lua
+*.swp
+*.swo
+*.obj
+*.o
+*.so
+*.dll
+*.dylib
+
+# Neovim
+doc/tags
+.nvim/
+
+# Test/CI
+.vscode/
+.idea/
+*.luac
+
+# OS
+.DS_Store
+Thumbs.db
