@@ -1,3 +1,9 @@
+# ⚠️ Under Development
+
+This project is currently under development and should not be used in production.
+
+---
+
 # hyprfade.nvim
 
 Seamlessly fade the terminal window hosting Neovim on Hyprland by setting its
@@ -63,7 +69,7 @@ require("hyprfade").setup({
 | `term_names`        | table   | `{ "kitty", "alacritty", "foot", "wezterm" }`  | Process names to recognise                                              |
 | `set_on_enter`      | boolean | `true`                                          | Apply opacity as soon as `setup()` runs, if `hyprctl` and the terminal pid are available |
 | `reset_on_leave`    | boolean | `true`                                          | Reset on `VimLeavePre`, if available                                    |
-| `notify_on_missing` | boolean | `true`                                          | Whether to `vim.notify` a warning when `hyprctl` isn't on `PATH` or the terminal pid can't be resolved. Set to `false` to fail silently (e.g. on a non-Hyprland machine) |
+| `notify_on_missing` | boolean | `true`                                          | Whether to `vim.notify` a warning when `hyprctl` isn't on `PATH` or the terminal pid can't be resolved. Set to `false` to suppress these warnings. |
 
 **"If not available" behaviour:** every entry point (`set_on_enter`,
 `reset_on_leave`, `HyprFade`, `HyprFadeToggle`, `HyprFadeReset`) checks for
