@@ -3,9 +3,6 @@ local M = {}
 local defaults = {
   opacity = 0.85,
   term_names = { "kitty", "alacritty", "foot", "wezterm" },
-  set_on_enter = true,
-  reset_on_leave = true,
-  notify_on_missing = true,
 }
 
 local opts = {}
@@ -13,9 +10,7 @@ local current = nil
 local terminal_pid = nil
 
 local function warn(msg)
-  if opts.notify_on_missing ~= false then
-    vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
-  end
+  vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
 end
 
 local function find_terminal_pid()
@@ -165,27 +160,20 @@ function M.setup(user_opts)
     reset()
   end, {})
 
-  -- NOTE: set_on_enter used to hook VimEnter. That breaks under lazy
-  -- loading (e.g. `event = "VeryLazy"`), because VeryLazy fires *after*
-  -- VimEnter has already completed for this session — by the time
-  -- setup() runs and registers the autocmd, VimEnter has already fired
-  -- and won't fire again, so opacity was never applied on startup.
-  -- setup() being called at all (eager or lazy) is itself the "the
-  -- plugin is now active" signal, so just apply immediately here.
+  -- NOTE: applying on setup() (rather than hooking VimEnter) matters for
+  -- lazy loading: lazy.nvim's VeryLazy event fires *after* VimEnter has
+  -- already completed for the session, so a VimEnter autocmd registered
+  -- inside setup() would never fire. setup() being called at all (eager
+  -- or lazy) is itself the "the plugin is now active" signal.
+  set_opacity(opts.opacity)
+
   local group = vim.api.nvim_create_augroup("hyprfade", { clear = true })
-
-  if opts.set_on_enter then
-    set_opacity(opts.opacity)
-  end
-
-  if opts.reset_on_leave then
-    vim.api.nvim_create_autocmd("VimLeavePre", {
-      group = group,
-      callback = function()
-        reset()
-      end,
-    })
-  end
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = group,
+    callback = function()
+      reset()
+    end,
+  })
 end
 
 return M
