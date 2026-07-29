@@ -1,27 +1,11 @@
 local M = {}
 
-local defaults = {
-  opacity = 1,
-  term_names = { "kitty", "alacritty", "foot", "wezterm" },
-}
-
 local opts = {}
 local current = nil
 local terminal_pid = nil
 
 local function warn(msg)
   vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
-end
-
-local function warn_later(msg)
-  vim.schedule(function()
-    vim.api.nvim_create_autocmd("VimEnter", {
-      once = true,
-      callback = function()
-        vim.notify("hyprfade: " .. msg, vim.log.levels.WARN)
-      end,
-    })
-  end)
 end
 
 local function find_terminal_pid()
@@ -122,19 +106,22 @@ local function toggle()
 end
 
 local function reset()
-  local opacity = opts.opacity
-  if type(opacity) ~= "number" or opacity < 0 or opacity > 1 then
-    warn_later("invalid opacity opts value, falling back to 1")
-    opacity = 1
+  if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
+    vim.notify("hyprfade: invalid opacity in opts", vim.log.levels.ERROR)
+    return
   end
-  set_opacity(opacity)
+  set_opacity(opts.opacity)
 end
 
 function M.setup(user_opts)
-  opts = vim.tbl_deep_extend("keep", user_opts or {}, defaults)
+  if not user_opts or type(user_opts) ~= "table" then
+    vim.notify("hyprfade: opts table is required, see https://github.com/andrewferrier/hyprfade.nvim", vim.log.levels.ERROR)
+    return
+  end
+  opts = vim.deepcopy(user_opts)
   if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
-    warn_later("invalid opacity opts value, falling back to 1")
-    opts.opacity = 1
+    vim.notify("hyprfade: opts.opacity must be a number between 0 and 1", vim.log.levels.ERROR)
+    return
   end
   current = nil
   terminal_pid = nil

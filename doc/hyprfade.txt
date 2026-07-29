@@ -30,7 +30,7 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
   - Hyprland 0.53.0+ (uses the `opacity`/`opacity_inactive` setprop props;
     older versions using `alpha`/`alphainactive` are not supported)
   - `hyprctl` on `PATH`
-  - A supported terminal emulator (kitty, alacritty, foot, wezterm)
+  - `opts` table with `opacity` and `term_names` passed to |hyprfade-setup()|
 
 ==============================================================================
 3. INSTALLATION                                    *hyprfade-installation*
@@ -53,8 +53,8 @@ With lazy.nvim: >
 ==============================================================================
 4. CONFIGURATION                                  *hyprfade-configuration*
 
-Calling `require("hyprfade").setup()` is optional; the plugin auto-initialises
-from `plugin/hyprfade.lua`. Pass opts to customise: >
+An `opts` table **must** be passed to |hyprfade-setup()|. There are no built-in
+defaults: >
   require("hyprfade").setup({
     opacity = 0.7,
     term_names = { "kitty", "alacritty", "foot", "wezterm" },
@@ -63,15 +63,16 @@ from `plugin/hyprfade.lua`. Pass opts to customise: >
 
 Options~
 
-    Option        Type      Default                                      Description
-    ----------    ------    -------------------------------------------  ----------------------------
-    `opacity`     number    `1`                                          Opacity value (0.0–1.0)
-    `term_names`  table     `{ "kitty", "alacritty", "foot", "wezterm" }`  Process names to recognise
+    Option        Type      Description
+    ----------    ------    -------------------------------------------
+    `opacity`     number    Opacity value (0.0–1.0)
+    `term_names`  table     Process names to recognise
 
 Opacity is applied when |hyprfade-setup()| runs and reset to `1` on
 `VimLeavePre`. If `hyprctl` is not on `PATH` or the terminal PID cannot be
-resolved, all entry points no-op with a `vim.notify` warning. Invalid opacity
-values are notified as an error and reset to `1`.
+resolved, all entry points no-op with a `vim.notify` warning. If `opacity` is
+missing or invalid, setup notifies at `ERROR` level and stops — the plugin
+will not activate.
 
 ==============================================================================
 5. COMMANDS                                        *hyprfade-commands*

@@ -1,6 +1,4 @@
-if vim.g.hyprfade_loaded then
-  return
-end
-vim.g.hyprfade_loaded = true
-
-require("hyprfade").setup()
+-- hyprfade.nvim now requires an explicit setup() call with opts.
+-- See |hyprfade-configuration|.
+-- Lazy.nvim users: add an `opts` table to your plugin spec;
+-- lazy calls setup() automatically with those opts.
