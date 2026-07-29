@@ -103,10 +103,10 @@ local function set_opacity(value)
 end
 
 local function toggle()
-  if current == 0 then
+  if current == 1 then
     set_opacity(opts.opacity)
   else
-    set_opacity(0)
+    set_opacity(1)
   end
 end
 
