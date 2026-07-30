@@ -128,6 +128,7 @@ function M.setup(user_opts)
         return
     end
     opts = vim.deepcopy(user_opts)
+    vim.g.hyprfade_opts = vim.deepcopy(user_opts)
     if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
         vim.notify("hyprfade: opts.opacity must be a number between 1 and 0", vim.log.levels.ERROR)
         return

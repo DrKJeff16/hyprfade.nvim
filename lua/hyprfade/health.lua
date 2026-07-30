@@ -46,12 +46,7 @@ function M.check()
 
     local term_names = vim.g.hyprfade_opts and vim.g.hyprfade_opts.term_names
 
-    health.info(
-        string.format(
-            "term_names (config): %s",
-            vim.inspect(term_names)
-        )
-    )
+    health.info(string.format("Terminals: %s", vim.inspect(term_names)))
 
     if vim.fn.executable("hyprctl") == 0 then
         health.error("`hyprctl` not found on PATH", { "Install Hyprland or add hyprctl to your PATH" })
