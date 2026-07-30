@@ -44,13 +44,12 @@ local M = {}
 function M.check()
     health.start("hyprfade")
 
+    local term_names = vim.g.hyprfade_opts and vim.g.hyprfade_opts.term_names
+
     health.info(
         string.format(
             "term_names (config): %s",
-            vim.inspect(
-                vim.g.hyprfade_opts and vim.g.hyprfade_opts.term_names
-                    or { "ghostty", "kitty", "alacritty", "foot", "wezterm" }
-            )
+            vim.inspect(term_names)
         )
     )
 
@@ -78,7 +77,10 @@ function M.check()
         end
     end
 
-    local pid, name = find_terminal_pid({ "ghostty", "kitty", "alacritty", "foot", "wezterm" })
+    local pid, name
+    if term_names then
+        pid, name = find_terminal_pid(term_names)
+    end
     if pid then
         health.ok(string.format("Terminal detected: %s (PID %d)", name, pid))
     else
