@@ -68,7 +68,9 @@ end
 -- statements in a single round trip, so we chain all the set_prop calls
 -- needed (override flag + value, for both active and inactive) into one
 -- eval instead of several separate hyprctl invocations.
-local function set_opacity(value)
+local function set_opacity(value, inactive_value)
+	inactive_value = inactive_value or value
+
 	if vim.fn.executable("hyprctl") == 0 then
 		warn("hyprctl not found on PATH")
 		return
@@ -93,7 +95,7 @@ local function set_opacity(value)
 		set_prop("opacity_override", 1),
 		set_prop("opacity", value),
 		set_prop("opacity_inactive_override", 1),
-		set_prop("opacity_inactive", value),
+		set_prop("opacity_inactive", inactive_value),
 	}
 
 	vim.system({ "hyprctl", "eval", table.concat(statements, "; ") }, nil, function() end)
@@ -102,14 +104,14 @@ end
 
 local function toggle()
 	if current == 1 then
-		set_opacity(opts.opacity)
+		set_opacity(opts.opacity, opts.opacity_inactive)
 	else
-		set_opacity(1)
+		set_opacity(1, 1)
 	end
 end
 
 local function reset()
-	set_opacity(1)
+	set_opacity(1, 1)
 end
 
 function M.setup(user_opts)
@@ -123,6 +125,12 @@ function M.setup(user_opts)
 	opts = vim.deepcopy(user_opts)
 	if type(opts.opacity) ~= "number" or opts.opacity < 0 or opts.opacity > 1 then
 		vim.notify("hyprfade: opts.opacity must be a number between 1 and 0", vim.log.levels.ERROR)
+		return
+	end
+	if opts.opacity_inactive == nil then
+		opts.opacity_inactive = opts.opacity
+	elseif type(opts.opacity_inactive) ~= "number" or opts.opacity_inactive < 0 or opts.opacity_inactive > 1 then
+		vim.notify("hyprfade: opts.opacity_inactive must be a number between 1 and 0", vim.log.levels.ERROR)
 		return
 	end
 	if type(opts.term_names) ~= "table" or #opts.term_names == 0 then
@@ -157,7 +165,7 @@ function M.setup(user_opts)
 	-- already completed for the session, so a VimEnter autocmd registered
 	-- inside setup() would never fire. setup() being called at all (eager
 	-- or lazy) is itself the "the plugin is now active" signal.
-	set_opacity(opts.opacity)
+	set_opacity(opts.opacity, opts.opacity_inactive)
 
 	local group = vim.api.nvim_create_augroup("hyprfade", { clear = true })
 	vim.api.nvim_create_autocmd("VimLeavePre", {
