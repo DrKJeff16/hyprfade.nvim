@@ -30,7 +30,7 @@ local function find_terminal_pid()
             local name, ppid = nil, nil ---@type string|nil|?, integer|nil|?
             for _, line in ipairs(lines) do
                 if line:match("^Name:") then
-                    name = line:match("^Name:%s+.+$") --[[@as string|nil|?]]
+                    name = line:match("^Name:%s+(.+)$") --[[@as string|nil|?]]
                 elseif line:match("^PPid:") then
                     ppid = tonumber(line:match("^PPid:%s+(%d+)$"), 10)
                 end

@@ -23,7 +23,7 @@ local function find_terminal_pid(term_names)
 
         if name then
             for _, term_name in ipairs(term_names) do
-                if name == term_name then
+                if name == term_name or name:find(term_name) then
                     return pid, name
                 end
             end
