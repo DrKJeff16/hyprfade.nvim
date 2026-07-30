@@ -21,7 +21,7 @@ hyprfade.nvim automatically adjusts the opacity of the terminal window hosting
 Neovim on Hyprland by issuing `hyprctl` commands matched by PID.
 
 Hyprland window rules based on `class` or `title` can miss the terminal window
-when Neovim is launched from a file manager (e.g. yazi), because the window's
+when Neovim is launched from a file manager like yazi, because the window's
 class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
 
 ==============================================================================
@@ -30,84 +30,104 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely.
   - Hyprland 0.53.0+ (uses the `opacity`/`opacity_inactive` setprop props;
     older versions using `alpha`/`alphainactive` are not supported)
   - `hyprctl` on `PATH`
-  - `opts` table with `opacity` and `term_names` passed to |hyprfade-setup()|
 
 ==============================================================================
 3. INSTALLATION                                    *hyprfade-installation*
 
-With lazy.nvim: >
+With lazy.nvim:
+>
   {
     "Senal-D-A-Gunaratna/hyprfade.nvim",
     lazy = false,
     priority = 1000,
     opts = {
-      opacity = 0.7,
-      term_names = { "alacritty", "foot", "ghostty", "kitty", "wezterm" },
+      opacity = 0.7,           -- opacity for active windows
+      opacity_inactive = 0.75, -- opacity for inactive windows
+      term_names = {               -- process names to recognise as terminals
+        "alacritty", "foot", "ghostty", "kitty", "wezterm",
+      },
     },
     keys = {
       { "<leader>uo", "<cmd>HyprfadeToggle<cr>", desc = "Toggle window opacity" },
     },
   }
 <
-
 ==============================================================================
 4. CONFIGURATION                                  *hyprfade-configuration*
 
-An `opts` table **must** be passed to |hyprfade-setup()|. There are no built-in
-defaults: >
+An `opts` table **must** be passed to |hyprfade-setup()|. There are no
+built-in defaults:
+>
   require("hyprfade").setup({
-    opacity = 0.7,
-    term_names = { "alacritty", "foot", "ghostty", "kitty", "wezterm" },
+    opacity = 0.7,              -- opacity for active windows (required, 1 - 0.0)
+    opacity_inactive = 0.75,    -- opacity for inactive windows
+    term_names = {                  -- process names to recognise as terminals
+      "alacritty", "foot", "ghostty", "kitty", "wezterm",
+    },
   })
 <
 
 Options~
 
-    Option        Type      Description
-    ----------    ------    -------------------------------------------
-    `opacity`     number    Opacity value (0.0–1.0)
-    `term_names`  table     Process names to recognise
+    Option            Type      Description
+    ----------        ------    -------------------------------------------
+    `opacity`            number    Opacity value for active windows
+    `opacity_inactive`   number    Opacity for inactive windows
+    `term_names`         table     Process names to recognise
 
-Opacity is applied when |hyprfade-setup()| runs and reset to `1` on
-`VimLeavePre`. If `hyprctl` is not on `PATH` or the terminal PID cannot be
-resolved, all entry points no-op with a `vim.notify` warning. If `opacity` is
-missing or invalid, setup notifies at `ERROR` level and stops — the plugin
-will not activate.
+Opacity is always applied as soon as |hyprfade-setup()| runs, and always reset
+to fully opaque (`1`) on `VimLeavePre` — these aren't configurable. If
+`hyprctl` isn't on `PATH` or the terminal pid can't be resolved, every entry
+point (`setup()`, `Hyprfade`, `HyprfadeToggle`, `HyprfadeReset`) no-ops and
+notifies via `vim.notify` rather than erroring, so it's safe to load the
+plugin unconditionally even outside a Hyprland session (e.g. nvim over SSH,
+or on X11/another compositor). If `opacity` is missing or invalid, `setup()`
+notifies at `ERROR` level and stops — the plugin won't activate.
 
 ==============================================================================
 5. COMMANDS                                        *hyprfade-commands*
 
   Command              Description~
-  `:Hyprfade {value}`  Set opacity to a specific value (0.0–1.0)
+  `:Hyprfade {value}`  Set opacity to a specific value (1 - 0.0)
   `:HyprfadeToggle`    Toggle between `1` (opaque) and `opts.opacity`
-   `:HyprfadeReset`     Reset opacity to `1` (fully opaque)
+  `:HyprfadeReset`     Reset opacity to `1` (fully opaque)
 
 ==============================================================================
 6. HOW OPACITY IS APPLIED                            *hyprfade-how*
 
-Hyprland 0.55+ replaced the classic `hyprctl dispatch <name> <args...>`
-calling convention with a Lua expression API. The plugin uses the typed form
-batched into a single `hyprctl eval` call: >
+Hyprland 0.55 (May 2026) replaced the classic `hyprctl dispatch <name>
+<args...>` calling convention with a Lua expression API — the old
+space-separated `dispatch setprop pid:X opacity 0.5` form is rejected
+outright with a Lua syntax error on 0.55+. The plugin uses the current typed
+form instead, batched into a single `hyprctl eval` call:
+
+>
   hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_override", value = 1, window = "pid:<pid>" }))
-  hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity", value = <val>, window = "pid:<pid>" }))
+  hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity", value = <value>, window = "pid:<pid>" }))
   hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_inactive_override", value = 1, window = "pid:<pid>" }))
-  hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_inactive", value = <val>, window = "pid:<pid>" }))
+  hl.dispatch(hl.dsp.window.set_prop({ prop = "opacity_inactive", value = <value>, window = "pid:<pid>" }))
 <
 
-Both `opacity` and `opacity_inactive` are set because Hyprland resets opacity
-to `1.0` when the window loses focus if only the active-state prop is
-overridden. Each value requires its matching `*_override` flag.
+Both `opacity` and `opacity_inactive` are set (not just `opacity`), because
+Hyprland resets opacity to `1` the moment the window loses focus if only the
+active-state prop is overridden. Each value requires its matching `*_override`
+flag set to `1`, or Hyprland ignores it. `HyprfadeReset` sets opacity to `1`
+(fully opaque); `VimLeavePre` also sets opacity to `1` so the terminal is
+fully opaque when Neovim exits.
 
-Opacity is applied immediately when |hyprfade-setup()| runs (not on
-`VimEnter`) because lazy-loading tools like lazy.nvim fire `VeryLazy` after
-`VimEnter` has already completed.
+Opacity is applied immediately when |hyprfade-setup()| runs, rather than
+waiting for a `VimEnter` autocmd. This matters for lazy-loaded installs:
+lazy.nvim's `VeryLazy` event (used in the install snippet above) fires
+_after_ `VimEnter` has already completed for the session, so a `VimEnter`
+autocmd registered inside `setup()` would never fire.
 
 ==============================================================================
 7. KNOWN LIMITATIONS                            *hyprfade-limitations*
 
 PID resolution walks `/proc` upwards from Neovim's PID through the parent
 chain (up to 25 hops). If the ancestor chain reparents to PID 1 before hitting
-a known terminal name, resolution fails and a warning is logged.
+a known terminal name (e.g. some detached spawn paths), resolution fails and a
+warning is logged via `vim.notify`.
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:

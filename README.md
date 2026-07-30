@@ -28,7 +28,8 @@ class hasn't been resolved yet. Matching on `pid:` sidesteps this entirely
   lazy = false,
   priority = 1000,
   opts = {
-    opacity = 0.7,              -- normal editing opacity
+    opacity = 0.7,           -- normal editing opacity
+    opacity_inactive = 0.75,  -- opacity for inactive windows
     term_names = {               -- process names to recognise as terminals
       "alacritty", "foot", "ghostty", "kitty", "wezterm",
     },
@@ -45,17 +46,19 @@ An `opts` table **must** be passed to `setup()`. There are no built-in defaults.
 
 ```lua
 require("hyprfade").setup({
-  opacity = 0.7,              -- normal editing opacity (required, 0.0–1.0)
+  opacity = 0.7,              -- opacity for active windows (required, 1 - 0.0)
+  opacity_inactive = 0.75,  -- opacity for inactive windows
   term_names = {                -- process names to recognise as terminals (required)
     "alacritty", "foot", "ghostty", "kitty", "wezterm",
   },
 })
 ```
 
-| Option       | Type   | Description                         |
-| ------------ | ------ | ----------------------------------- |
-| `opacity`    | number | Opacity value applied automatically |
-| `term_names` | table  | Process names to recognise          |
+| Option             | Type   | Description                      |
+| ------------------ | ------ | -------------------------------- |
+| `opacity`          | number | Opacity value for active windows |
+| `opacity_inactive` | number | Opacity for inactive windows     |
+| `term_names`       | table  | Process names to recognise       |
 
 Opacity is always applied as soon as `setup()` runs, and always reset to fully
 opaque (`1`) on `VimLeavePre` — these aren't configurable. If `hyprctl` isn't
@@ -68,11 +71,11 @@ at `ERROR` level and stops — the plugin won't activate.
 
 ## Commands
 
-| Command            | Description                             |
-| ------------------ | --------------------------------------- |
-| `Hyprfade [value]` | Set opacity to a specific value (1-0)   |
+| Command            | Description                                                |
+| ------------------ | ---------------------------------------------------------- |
+| `Hyprfade [value]` | Set opacity to a specific value (1 - 0.0)                  |
 | `HyprfadeToggle`   | Toggle between `1` (fully opaque) and opts `opacity` value |
-| `HyprfadeReset`    | Reset opacity to `1` (fully opaque)    |
+| `HyprfadeReset`    | Reset opacity to `1` (fully opaque)                        |
 
 ## How opacity is actually applied
 
@@ -105,6 +108,6 @@ registered inside `setup()` would never fire
 ## Known limitations
 
 PID resolution walks the `/proc` tree upwards from Neovim's PID through the
-parent chain. If the ancestor chain reparents to PID 1 before hitting a known
-terminal name (e.g. some detached spawn paths), resolution fails and a
-warning is logged via `vim.notify`
+parent chain (up to 25 hops). If the ancestor chain reparents to PID 1 before
+hitting a known terminal name (e.g. some detached spawn paths), resolution fails
+and a warning is logged via `vim.notify`
