@@ -67,7 +67,7 @@ function M.check()
             "Health checks beyond `hyprctl` availability will be limited",
         })
     else
-        local instance_dir = "/tmp/hypr/" .. hyprland_sig
+        local instance_dir = (vim.fn.environ()["XDG_RUNTIME_DIR"] or "/run/user/" .. vim.fn.getuid()) .. "/hypr/" .. hyprland_sig
         if vim.fn.isdirectory(instance_dir) == 1 then
             health.ok("Hyprland instance detected")
         else
