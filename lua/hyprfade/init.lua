@@ -38,7 +38,7 @@ local function find_terminal_pid()
 
             if name then
                 for _, term_name in ipairs(opts.term_names) do
-                    if name == term_name or name:find(term_name) then
+                    if name == term_name then
                         terminal_pid = pid
                         return pid
                     end
